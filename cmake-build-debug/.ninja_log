@@ -1,0 +1,9 @@
+# ninja log v5
+5	686	1723850917930543803	CMakeFiles/monitor.dir/src/system.cpp.o	bc00db70c26bec06
+1	318	1721756507407010656	CMakeFiles/monitor.dir/src/format.cpp.o	9343fc406607405e
+4	1239	1723850918482550269	CMakeFiles/monitor.dir/src/linux_parser.cpp.o	fe0c99b5f58924ef
+4	783	1723850918030544975	CMakeFiles/monitor.dir/src/main.cpp.o	60b8415784a4525c
+1239	1388	1723850918634552048	monitor	aab32b48aa3c9e8a
+4	647	1723850917894543381	CMakeFiles/monitor.dir/src/processor.cpp.o	78f846a6bde26f99
+4	731	1723850917978544366	CMakeFiles/monitor.dir/src/ncurses_display.cpp.o	9b780118de57157d
+4	626	1723850917870543101	CMakeFiles/monitor.dir/src/process.cpp.o	557bdfa35b5923f1
