@@ -21,7 +21,7 @@ const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
 
 //Proc/stat parsing
-void ProcStatParsin();
+void ProcStatParsin(int* runningProcessRawPtr, int* totalProcessRawPtr, int* cpuNRawPrt);
 
 // System
 float MemoryUtilization();

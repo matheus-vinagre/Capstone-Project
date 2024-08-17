@@ -39,20 +39,36 @@ vector<Process>& System::Processes() {
   return processes_;
 }
 
-std::string System::Kernel() { return LinuxParser::Kernel(); }
+std::string System::Kernel() {
+  if (_kernel && _kernel->empty()) {
+    *_kernel = LinuxParser::OperatingSystem(); // Receives an rvalue because of RVO of the compiler
+    return *_kernel;
+  }
+  return *_kernel;
+}
 
 float System::MemoryUtilization() { return LinuxParser::MemoryUtilization(); }
 
 std::string System::OperatingSystem() {
   if (_os && _os->empty()) {
-    *_os = LinuxParser::OperatingSystem();
+    *_os = LinuxParser::OperatingSystem(); // Receives an rvalue because of RVO of the compiler
     return *_os;
   }
   return *_os;
 }
 
-int System::RunningProcesses() { return LinuxParser::RunningProcesses(); }
+int System::RunningProcesses() { return *_runningProcess; }
 
-int System::TotalProcesses() { return processes_.size(); }
+int System::TotalProcesses() { return *_totalProcess; }
 
 long System::UpTime() { return LinuxParser::UpTime(); }
+
+int* System::GetRunningProcessRawPtr() {
+  return _runningProcess.get();
+}
+int* System::GetTotalProcessRawPtr() {
+  return _totalProcess.get();
+}
+int* System::GetCpuNRawPtr() {
+  return _cpuN.get();
+}

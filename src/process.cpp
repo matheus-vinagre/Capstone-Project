@@ -24,10 +24,8 @@ void Process::set_last_totaltime(long last_totaltime) {
 long& Process::last_uptime() { return last_uptime_; }
 void Process::set_last_uptime(long last_uptime) { last_uptime_ = last_uptime; }
 
-// x TODO: Return this process's ID
 int Process::Pid() { return pid_; }
 
-// x TODO: Return this process's CPU utilization
 
 double calculateCpu(const long& delta_totaltime, const long& delta_uptime) {
   long clockTicks = sysconf(_SC_CLK_TCK);
@@ -77,19 +75,14 @@ float Process::CpuUtilization() {
   double cpuUsage = calculateCpu(d_totaltime, d_uptime);
   return cpuUsage;
 }
-// x TODO: Return the command that generated this process
 string Process::Command() { return LinuxParser::Command(pid_); }
 
-// x TODO: Return this process's memory utilization
 string Process::Ram() {return LinuxParser::Ram(pid_);}
 
-// x TODO: Return the user (name) that generated this process
 string Process::User() { return LinuxParser::User(LinuxParser::Uid(pid_)); }
 
-// x TODO: Return the age of this process (in seconds)
 long int Process::UpTime() { return LinuxParser::UpTime(pid_); }
 
-// x TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator<(Process const& other) const {
   float a = std::stof(LinuxParser::Ram(pid_));

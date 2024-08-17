@@ -13,7 +13,9 @@ using std::vector;
 #include "system.h"
 
 int main() {
-  LinuxParser::ProcStatParsin();
   System system;
+  LinuxParser::ProcStatParsin(system.GetRunningProcessRawPtr(),
+                              system.GetTotalProcessRawPtr(),
+                              system.GetCpuNRawPtr());
   NCursesDisplay::Display(system);
 }
