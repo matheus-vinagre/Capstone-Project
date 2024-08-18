@@ -21,7 +21,7 @@ namespace LinuxParser{
 	int totalProcesses;
   int runningProcesses;
  	std::vector<PrevProcessor> prevProcessor;
-	std::vector<std::vector<std::string>> cpuUtilization;
+  std::vector<std::vector<std::string>> cpuUtilization;
 	int cpuN;
   	std::vector<Process> prevProcesses;
 }
@@ -35,6 +35,7 @@ void LinuxParser::ProcStatParsin(System* system) {
   vector<string> cpuData(11);
   string s_totalProcesses, s_runningProcess;
   std::ifstream filestream(kProcDirectory + kStatFilename);
+  vector<Processor> cpu_temp;
   string line;
   int cpuCount = 0;
   while (std::getline(filestream, line)) {
@@ -47,9 +48,9 @@ void LinuxParser::ProcStatParsin(System* system) {
                  >> cpuData[kSoftIRQ_] >> cpuData[kSteal_] >> cpuData[kGuest_]
                  >> cpuData[kGuestNice_];
       cpuData[kCpuNumber] = to_string( cpuCount - 1 );
-      //cpuUtilization.push_back(cpuData);
+     // cpuUtilization.push_back(cpuData);
       Processor processor(cpuData);
-      system->GetCpuVectorRawPtr()->emplace_back(processor);
+      cpu_temp.emplace_back(processor);
     }
     if (line.substr(0, 9) == "processes") {
       std::istringstream linestream(line);
@@ -65,6 +66,7 @@ void LinuxParser::ProcStatParsin(System* system) {
     }
   }
   *system->GetCpuNRawPtr() = cpuCount;
+  system->GetCpuVectorRawPtr()->swap(cpu_temp);
 }
 
 // DONE: An example of how to read data from the filesystem
