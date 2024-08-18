@@ -15,5 +15,7 @@ using std::vector;
 int main() {
   System system;
   LinuxParser::ProcStatParsin(&system);
+  LinuxParser::OperatingSystem(system.GetOsRawPtr());
+  LinuxParser::Kernel(system.GetKernelRawPtr());
   NCursesDisplay::Display(system);
 }

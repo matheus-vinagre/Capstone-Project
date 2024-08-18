@@ -22,6 +22,8 @@ class System {
   int* GetRunningProcessRawPtr();
   int* GetTotalProcessRawPtr();
   int* GetCpuNRawPtr();
+  std::string* GetOsRawPtr();
+  std::string* GetKernelRawPtr();
   std::vector<Processor>* GetCpuVectorRawPtr();
 
  private:

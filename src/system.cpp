@@ -31,20 +31,12 @@ vector<Process>& System::Processes() {
 }
 
 std::string System::Kernel() {
-  if (_kernel && _kernel->empty()) {
-    *_kernel = LinuxParser::OperatingSystem(); // Receives an rvalue because of RVO of the compiler
-    return *_kernel;
-  }
   return *_kernel;
 }
 
 float System::MemoryUtilization() { return LinuxParser::MemoryUtilization(); }
 
 std::string System::OperatingSystem() {
-  if (_os && _os->empty()) {
-    *_os = LinuxParser::OperatingSystem(); // Receives an rvalue because of RVO of the compiler
-    return *_os;
-  }
   return *_os;
 }
 
@@ -62,6 +54,12 @@ int* System::GetTotalProcessRawPtr() {
 }
 int* System::GetCpuNRawPtr() {
   return _cpuN.get();
+}
+std::string* System::GetOsRawPtr() {
+  return _os.get();
+}
+std::string* System::GetKernelRawPtr() {
+  return _kernel.get();
 }
 std::vector<Processor>* System::GetCpuVectorRawPtr() {
   return cpu_.get();

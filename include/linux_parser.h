@@ -42,8 +42,8 @@ int CpuN();
 
 int TotalProcesses();
 int RunningProcesses();
-std::string OperatingSystem();
-std::string Kernel();
+void OperatingSystem(std::string* os);
+void Kernel(std::string* kernel);
 
 // CPU
 enum CPUStates {

@@ -70,8 +70,8 @@ void LinuxParser::ProcStatParsin(System* system) {
 }
 
 // DONE: An example of how to read data from the filesystem
-string LinuxParser::OperatingSystem() {
-  string os;
+void LinuxParser::OperatingSystem(std::string* os) {
+  string os_temp;
   std::ifstream filestream(kOSPath);
   if (filestream.is_open()) {
     string key;
@@ -81,20 +81,19 @@ string LinuxParser::OperatingSystem() {
       std::replace(line.begin(), line.end(), '=', ' ');
       std::replace(line.begin(), line.end(), '"', ' ');
       std::istringstream linestream(line);
-      while (linestream >> key >> os) {
+      while (linestream >> key >> os_temp) {
         if (key == "PRETTY_NAME") {
-          std::replace(os.begin(), os.end(), '_', ' ');
-          return os;
+          std::replace(os_temp.begin(), os_temp.end(), '_', ' ');
+          *os = os_temp;
         }
       }
     }
   }
-  return os;
 }
 
 // DONE: An example of how to read data from the filesystem
-string LinuxParser::Kernel() {
-  string kernel;
+void LinuxParser::Kernel(std::string* kernel) {
+  string kernel_temp;
   std::ifstream stream(kProcDirectory + kVersionFilename);
   if (stream.is_open()) {
     string line;
@@ -102,9 +101,9 @@ string LinuxParser::Kernel() {
     string os;
     std::getline(stream, line);
     std::istringstream linestream(line);
-    linestream >> os >> version >> kernel;
+    linestream >> os >> version >> kernel_temp;
   }
-  return kernel;
+  *kernel = kernel_temp;
 }
 
 // BONUS: Update this to use std::filesystem
