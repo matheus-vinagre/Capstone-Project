@@ -59,7 +59,7 @@ std::string System::OperatingSystem() {
 
 int System::RunningProcesses() { return *_runningProcess; }
 
-int System::TotalProcesses() { return *_totalProcess; }
+int System::TotalProcesses() { return processes_.size(); }
 
 long System::UpTime() { return LinuxParser::UpTime(); }
 
