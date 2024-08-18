@@ -8,7 +8,9 @@
 #include <iomanip>
 #include <map>
 #include <string>
+#include <system.h>
 #include <vector>
+#include <processor.h>
 using std::stof;
 using std::string;
 using std::to_string;
@@ -29,7 +31,7 @@ void LinuxParser::InitializePrevProcessor(int N) {
   LinuxParser::prevProcessor.resize(N); // Resize the vector based on the value of N
 }
 
-void LinuxParser::ProcStatParsin(int* runningProcessRawPtr, int* totalProcessRawPtr, int* cpuNRawPrt) {
+void LinuxParser::ProcStatParsin(System* system) {
   vector<string> cpuData(11);
   string s_totalProcesses, s_runningProcess;
   std::ifstream filestream(kProcDirectory + kStatFilename);
@@ -45,22 +47,24 @@ void LinuxParser::ProcStatParsin(int* runningProcessRawPtr, int* totalProcessRaw
                  >> cpuData[kSoftIRQ_] >> cpuData[kSteal_] >> cpuData[kGuest_]
                  >> cpuData[kGuestNice_];
       cpuData[kCpuNumber] = to_string( cpuCount - 1 );
-      cpuUtilization.push_back(cpuData);
+      //cpuUtilization.push_back(cpuData);
+      Processor processor(cpuData);
+      system->GetCpuVectorRawPtr()->emplace_back(processor);
     }
     if (line.substr(0, 9) == "processes") {
       std::istringstream linestream(line);
       linestream.ignore(256, ' ');
       linestream >> s_totalProcesses;
-      *totalProcessRawPtr = std::stoi(s_totalProcesses);
+      *system->GetTotalProcessRawPtr() = std::stoi(s_totalProcesses);
     }
     if (line.substr(0, 13) == "procs_running") {
       std::istringstream linestream(line);
       linestream.ignore(256, ' ');
       linestream >> s_runningProcess;
-      *runningProcessRawPtr = std::stoi(s_runningProcess);
+      *system->GetRunningProcessRawPtr() = std::stoi(s_runningProcess);
     }
   }
-  *cpuNRawPrt = cpuCount;
+  *system->GetCpuNRawPtr() = cpuCount;
 }
 
 // DONE: An example of how to read data from the filesystem
@@ -205,7 +209,6 @@ float LinuxParser::MemoryUtilization() {
 // And caculate the rest inside Processor class.
 long LinuxParser::Jiffies() { return 0; }
 
-// REMOVE: [[maybe_unused]] once you define the function
 vector<long> LinuxParser::ActiveJiffies(int pid) {
   string spid = to_string(pid);
   long utime, stime, cutime, cstime, starttime;
@@ -260,7 +263,6 @@ int LinuxParser::TotalProcesses() { return totalProcesses;}
 
 int LinuxParser::RunningProcesses() { return runningProcesses;}
 
-// REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Command(int pid) {
   string spid = to_string(pid);
   std::ifstream filestream(LinuxParser::kProcDirectory + spid + LinuxParser::kCmdlineFilename);
@@ -282,7 +284,6 @@ string LinuxParser::Command(int pid) {
   return line;
 }
 
-// REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Ram(int pid) {
   string spid = to_string(pid);
   string ram, kb;
@@ -304,7 +305,6 @@ string LinuxParser::Ram(int pid) {
   return  "0";
 }
 
-// REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Uid(int pid) {
   string spid = to_string(pid);
   string uid, uid2 ,uid3, uid4;
@@ -320,7 +320,6 @@ string LinuxParser::Uid(int pid) {
   return uid;
 }
 
-// REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::User(const string& uid) {
   string user, psswd, key, gid, gecos, dir, shell;
   std::ifstream filestream(kPasswordPath);
@@ -354,7 +353,6 @@ long LinuxParser::UpTime() {
   return upTime;
 }
 
-// REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) {
   string spid = to_string(pid);
   string data;

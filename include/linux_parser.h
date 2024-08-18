@@ -3,6 +3,7 @@
 
 #include <processor.h>
 #include <process.h>
+#include <system.h>
 #include <regex>
 #include <string>
 
@@ -21,7 +22,7 @@ const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
 
 //Proc/stat parsing
-void ProcStatParsin(int* runningProcessRawPtr, int* totalProcessRawPtr, int* cpuNRawPrt);
+void ProcStatParsin(System* system);
 
 // System
 float MemoryUtilization();

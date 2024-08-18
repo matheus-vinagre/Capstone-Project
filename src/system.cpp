@@ -13,7 +13,7 @@ using std::string;
 using std::vector;
 
 vector<Processor>& System::Cpu() {
-  vector<vector<string>> cpu = LinuxParser::CpuUtilization();
+  /*vector<vector<string>> cpu = LinuxParser::CpuUtilization();
   vector<Processor> cpu_temp;
   cpu_temp.reserve(LinuxParser::cpuN);
   for(const auto& core : cpu) {
@@ -22,7 +22,8 @@ vector<Processor>& System::Cpu() {
   }
   cpu_ = cpu_temp;
   cpu_temp.clear();
-  return cpu_;
+  */
+  return *cpu_;
 }
 
 vector<Process>& System::Processes() {
@@ -71,4 +72,7 @@ int* System::GetTotalProcessRawPtr() {
 }
 int* System::GetCpuNRawPtr() {
   return _cpuN.get();
+}
+std::vector<Processor>* System::GetCpuVectorRawPtr() {
+  return cpu_.get();
 }

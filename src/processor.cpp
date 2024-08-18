@@ -26,7 +26,6 @@ template <typename Type>
   Type Sub(Type a, Type b) { return (a > b ) ? ( a - b ): 0; }
 
 
-// x TODO: Return the aggregate CPU utilization
 float Processor::Utilization() {
 
   unsigned long long usertime = user_ - guest_;

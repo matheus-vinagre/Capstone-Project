@@ -22,11 +22,12 @@ class System {
   int* GetRunningProcessRawPtr();
   int* GetTotalProcessRawPtr();
   int* GetCpuNRawPtr();
+  std::vector<Processor>* GetCpuVectorRawPtr();
 
  private:
-  std::vector<Processor> cpu_ ;
-  std::vector<Process> processes_;
 
+  std::unique_ptr<std::vector<Processor>> cpu_ = std::make_unique<std::vector<Processor>>();
+  std::vector<Process> processes_;
   std::unique_ptr<std::string> _os = std::make_unique<std::string>();
   std::unique_ptr<std::string> _kernel = std::make_unique<std::string>();
   std::unique_ptr<int> _runningProcess = std::make_unique<int>();
