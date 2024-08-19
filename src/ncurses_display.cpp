@@ -107,6 +107,8 @@ void NCursesDisplay::Display(System& system, int n) {
     box(system_window, 0, 0);
     box(process_window, 0, 0);
     LinuxParser::ProcStatParsin(&system); // Auxiliary function for parsing data
+    LinuxParser::Pids(system.GetProcessVectorRawPrt());
+    LinuxParser::MemoryParse(system.GetMemoryRawPtr());
     DisplaySystem(system, system_window);
     DisplayProcesses(system.Processes(), process_window, n);
     wrefresh(system_window);

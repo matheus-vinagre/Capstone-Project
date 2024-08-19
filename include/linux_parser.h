@@ -25,9 +25,9 @@ const std::string kPasswordPath{"/etc/passwd"};
 void ProcStatParsin(System* system);
 
 // System
-float MemoryUtilization();
+void MemoryParse(Memory* memory);
 long UpTime();
-std::vector<int> Pids();
+void Pids(std::vector<Process>* processes);
 
 
 

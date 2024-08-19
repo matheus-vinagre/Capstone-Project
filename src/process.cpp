@@ -15,7 +15,8 @@ Type Sub(Type a, Type b) {
   return (a > b) ? (a - b) : 0;
 }
 
-Process::Process(int pid) : pid_(pid) {}
+Process::Process(const int pid): pid_(pid){}
+
 
 long& Process::last_totaltime() { return last_totaltime_; }
 void Process::set_last_totaltime(long last_totaltime) {
@@ -89,3 +90,5 @@ bool Process::operator<(Process const& other) const {
   float b = std::stof(LinuxParser::Ram(other.pid_));
   return a > b;
 }
+
+

@@ -11,6 +11,7 @@
 #include <system.h>
 #include <vector>
 #include <processor.h>
+#include <memory.h>
 using std::stof;
 using std::string;
 using std::to_string;
@@ -133,25 +134,24 @@ bool is_digits(const std::string& str) {
 }
 
 // Function to list process IDs
-std::vector<int> LinuxParser::Pids() {
-    std::vector<int> pids;
+void LinuxParser::Pids(std::vector<Process>* processes) {
+    std::vector<Process> temp_processes;
     const fs::path dirpath = "/proc"; // Update with your directory path
-
     // Iterate over the directory entries
     for (fs::directory_iterator it(dirpath); it != fs::directory_iterator(); ++it) {
         if (fs::is_directory(it->path())) { // Use fs::is_directory to check if it's a directory
             std::string dirName = it->path().filename().string();
             if (is_digits(dirName)) {
                 int pid = std::stoi(dirName);
-                pids.push_back(pid);
+                  Process process(pid);
+                  temp_processes.emplace_back(process);
             }
         }
     }
-
-    return pids;
+  processes->swap(temp_processes);
 }
 
-float LinuxParser::MemoryUtilization() {
+void LinuxParser::MemoryParse(Memory* memory) {
   enum class Choice{A, T, F, B, C, H, R};
     std::map<string, Choice> stringToEnumMap
         = { {"bugKill", Choice::A},
@@ -161,9 +161,9 @@ float LinuxParser::MemoryUtilization() {
             {"Cached:", Choice::C},
             {"Shmem:", Choice::H},
             {"SReclaimable:", Choice::R}};
-  unsigned long long memTotal, memFree, memBuffer, memCached, sHmem, sReclaimable ;
     std::ifstream filestream(LinuxParser::kProcDirectory +
                            LinuxParser::kMeminfoFilename);
+  Memory memory_temp;
   if (filestream.is_open()) {
     Choice choice;
     string line;
@@ -176,22 +176,22 @@ float LinuxParser::MemoryUtilization() {
         choice = stringToEnumMap[key];
         switch (choice) {
         case Choice::T:
-          memTotal = stoll(sValue);
+          memory_temp.set_mem_total(stoll(sValue));
           break;
         case Choice::F:
-          memFree = stoll(sValue);
+          memory_temp.set_mem_free(stoll(sValue));
           break;
         case Choice::B:
-          memBuffer = stoll(sValue);
+          memory_temp.set_mem_buffer(stoll(sValue));
           break;
         case Choice::C:
-          memCached = stoll(sValue);
+          memory_temp.set_mem_cached(stoll(sValue));
           break;
         case Choice::H:
-            sHmem = stoll(sValue);
+            memory_temp.set_s_hmem(stoll(sValue));
         break;
         case Choice::R:
-            sReclaimable = stoll(sValue);
+            memory_temp.set_s_reclaimable(stoll(sValue));
         break;
         default:
           break;
@@ -199,11 +199,7 @@ float LinuxParser::MemoryUtilization() {
       }
     }
   }
-  unsigned long long int memUsed = memTotal - memFree;
-  unsigned long long int memCached_T = memCached + sReclaimable - sHmem;
-  unsigned long long int memUtilization = memUsed - (memBuffer + memCached_T);
-  float utilization = (100.0 * memUtilization) /memTotal;
-  return utilization/100;
+  *memory = memory_temp;
 }
 
 // Not Used! I use ProcStatParsin() instead.

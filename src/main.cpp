@@ -17,5 +17,7 @@ int main() {
   LinuxParser::ProcStatParsin(&system);
   LinuxParser::OperatingSystem(system.GetOsRawPtr());
   LinuxParser::Kernel(system.GetKernelRawPtr());
+  LinuxParser::Pids(system.GetProcessVectorRawPrt());
+  LinuxParser::MemoryParse(system.GetMemoryRawPtr());
   NCursesDisplay::Display(system);
 }

@@ -28,7 +28,9 @@ include_directories(include)
 file(GLOB SOURCES "src/*.cpp")
 
 # Create the executable
-add_executable(monitor ${SOURCES})
+add_executable(monitor ${SOURCES}
+        include/memory.h
+        src/memory.cpp)
 
 # Link libraries explicitly
 target_link_libraries(monitor ${CURSES_LIBRARIES} ${BOOST_FILESYSTEM_LIB} ${BOOST_SYSTEM_LIB})
