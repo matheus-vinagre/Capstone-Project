@@ -108,7 +108,7 @@ string Process::Ram() {return _ram;}
 string Process::User() { return _user; }
 
 long int Process::UpTime() {
-  return ( _starttime / sysconf(_SC_CLK_TCK)) - _sysUptime ;
+  return _sysUptime - ( _starttime / sysconf(_SC_CLK_TCK));
 }
 
 // REMOVE: [[maybe_unused]] once you define the function
