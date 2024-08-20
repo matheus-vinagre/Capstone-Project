@@ -2,6 +2,7 @@
 #define PROCESS_H
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 class PrevProcess;
 /*
@@ -32,7 +33,7 @@ private:
     std::string _user, _uid, _ram, _command;
 
     long _totaltime = _utime + _stime + _cutime + _cstime;
-    long _uptime = _starttime - _sysUptime;
+    long _uptime = _sysUptime - ( _starttime / sysconf(_SC_CLK_TCK));
 };
 
 class PrevProcess {
