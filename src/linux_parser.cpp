@@ -143,71 +143,27 @@ void LinuxParser::Pids(std::vector<Process>* processes) {
             std::string dirName = it->path().filename().string();
             if (is_digits(dirName)) {
                 int pid = std::stoi(dirName);
-                  Process process(pid);
-                  temp_processes.emplace_back(process);
+                vector<long> pidData = ActiveJiffies(dirName);
+                std::string pidCommand = Command(pid);
+                std::string pidRam = Ram(dirName);
+                std::string pidUid = Uid(dirName);
+                std::string pidUser = User(pidUid);
+                long sysUptime = SysUpTime();
+                Process process(pid,pidData[0], pidData[1], pidData[2], pidData[3],
+                                pidData[4], sysUptime, pidUser, pidUid, pidRam, pidCommand);
+                temp_processes.emplace_back(process);
             }
         }
     }
   processes->swap(temp_processes);
-}
-
-void LinuxParser::MemoryParse(Memory* memory) {
-  enum class Choice{A, T, F, B, C, H, R};
-    std::map<string, Choice> stringToEnumMap
-        = { {"bugKill", Choice::A},
-            {"MemTotal:", Choice::T},
-            {"MemFree:", Choice::F},
-            {"Buffers:", Choice::B},
-            {"Cached:", Choice::C},
-            {"Shmem:", Choice::H},
-            {"SReclaimable:", Choice::R}};
-    std::ifstream filestream(LinuxParser::kProcDirectory +
-                           LinuxParser::kMeminfoFilename);
-  Memory memory_temp;
-  if (filestream.is_open()) {
-    Choice choice;
-    string line;
-    string kB;
-    string sValue;
-    string key;
-    while (std::getline(filestream, line)) {
-      std::istringstream linestream(line);
-      while (linestream >> key >> sValue >> kB) {
-        choice = stringToEnumMap[key];
-        switch (choice) {
-        case Choice::T:
-          memory_temp.set_mem_total(stoll(sValue));
-          break;
-        case Choice::F:
-          memory_temp.set_mem_free(stoll(sValue));
-          break;
-        case Choice::B:
-          memory_temp.set_mem_buffer(stoll(sValue));
-          break;
-        case Choice::C:
-          memory_temp.set_mem_cached(stoll(sValue));
-          break;
-        case Choice::H:
-            memory_temp.set_s_hmem(stoll(sValue));
-        break;
-        case Choice::R:
-            memory_temp.set_s_reclaimable(stoll(sValue));
-        break;
-        default:
-          break;
-        }
-      }
-    }
-  }
-  *memory = memory_temp;
+  temp_processes.clear();
 }
 
 // Not Used! I use ProcStatParsin() instead.
 // And caculate the rest inside Processor class.
 long LinuxParser::Jiffies() { return 0; }
 
-vector<long> LinuxParser::ActiveJiffies(int pid) {
-  string spid = to_string(pid);
+vector<long> LinuxParser::ActiveJiffies(const std::string& spid) {
   long utime, stime, cutime, cstime, starttime;
   std::ifstream filestream(LinuxParser::kProcDirectory + spid +
                            LinuxParser::kStatFilename);
@@ -261,7 +217,7 @@ int LinuxParser::TotalProcesses() { return totalProcesses;}
 int LinuxParser::RunningProcesses() { return runningProcesses;}
 
 string LinuxParser::Command(int pid) {
-  string spid = to_string(pid);
+  std::string spid = to_string(pid);
   std::ifstream filestream(LinuxParser::kProcDirectory + spid + LinuxParser::kCmdlineFilename);
   string line;
 
@@ -269,20 +225,19 @@ string LinuxParser::Command(int pid) {
     if (std::getline(filestream, line)) {
       // Successfully read the line
       if (line.empty()) {
-        std::cerr << "Warning: Command line for PID " << pid << " is empty." << std::endl;
+        std::cerr << "Warning: Command line for PID " << spid << " is empty." << std::endl;
       }
     } else {
-      std::cerr << "Error: Could not read the command line for PID " << pid << std::endl;
+      std::cerr << "Error: Could not read the command line for PID " << spid << std::endl;
     }
   } else {
-    std::cerr << "Error: Could not open file for PID " << pid << std::endl;
+    std::cerr << "Error: Could not open file for PID " << spid << std::endl;
   }
 
   return line;
 }
 
-string LinuxParser::Ram(int pid) {
-  string spid = to_string(pid);
+string LinuxParser::Ram(const std::string& spid) {
   string ram, kb;
   std::ifstream filestream(LinuxParser::kProcDirectory + spid +
                            LinuxParser::kStatusFilename);
@@ -302,8 +257,7 @@ string LinuxParser::Ram(int pid) {
   return  "0";
 }
 
-string LinuxParser::Uid(int pid) {
-  string spid = to_string(pid);
+string LinuxParser::Uid(const std::string& spid) {
   string uid, uid2 ,uid3, uid4;
   std::ifstream filestream(LinuxParser::kProcDirectory + spid +
                            LinuxParser::kStatusFilename);
@@ -336,22 +290,34 @@ string LinuxParser::User(const string& uid) {
 
 bool operator==(const string& lhs, long rhs);
 
-long LinuxParser::UpTime() {
+void LinuxParser::UpTime(long* upTime) {
   std::ifstream filestream(LinuxParser::kProcDirectory +
                            LinuxParser::kUptimeFilename);
-  long upTime;
+  long upTime_temp;
   if (filestream.is_open()) {
     string line, s_upTime, s_idleTime;
     std::getline(filestream, line);
     std::istringstream linestream(line);
     linestream >> s_upTime >> s_idleTime;
-    upTime = std::stol(s_upTime);
+    upTime_temp = std::stol(s_upTime);
   }
-  return upTime;
+  *upTime = upTime_temp;
+}
+long LinuxParser::SysUpTime() {
+  std::ifstream filestream(LinuxParser::kProcDirectory +
+                           LinuxParser::kUptimeFilename);
+  long upTime_temp;
+  if (filestream.is_open()) {
+    string line, s_upTime, s_idleTime;
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    linestream >> s_upTime >> s_idleTime;
+    upTime_temp = std::stol(s_upTime);
+  }
+  return upTime_temp;
 }
 
-long LinuxParser::UpTime(int pid) {
-  string spid = to_string(pid);
+/*long LinuxParser::UpTime(const std::string& spid) {
   string data;
   std::ifstream filestream(LinuxParser::kProcDirectory + spid +
                            LinuxParser::kStatFilename);
@@ -368,4 +334,55 @@ long LinuxParser::UpTime(int pid) {
   long p_uptime = std::stol(data) / sysconf(_SC_CLK_TCK);
   long s_uptime = UpTime();
   return s_uptime - p_uptime;
+}*/
+
+void LinuxParser::MemoryParse(Memory* memory) {
+  enum class Choice{A, T, F, B, C, H, R};
+  std::map<string, Choice> stringToEnumMap
+      = { {"bugKill", Choice::A},
+          {"MemTotal:", Choice::T},
+          {"MemFree:", Choice::F},
+          {"Buffers:", Choice::B},
+          {"Cached:", Choice::C},
+          {"Shmem:", Choice::H},
+          {"SReclaimable:", Choice::R}};
+  std::ifstream filestream(LinuxParser::kProcDirectory +
+                         LinuxParser::kMeminfoFilename);
+  Memory memory_temp;
+  if (filestream.is_open()) {
+    Choice choice;
+    string line;
+    string kB;
+    string sValue;
+    string key;
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> key >> sValue >> kB) {
+        choice = stringToEnumMap[key];
+        switch (choice) {
+          case Choice::T:
+            memory_temp.set_mem_total(stoll(sValue));
+          break;
+          case Choice::F:
+            memory_temp.set_mem_free(stoll(sValue));
+          break;
+          case Choice::B:
+            memory_temp.set_mem_buffer(stoll(sValue));
+          break;
+          case Choice::C:
+            memory_temp.set_mem_cached(stoll(sValue));
+          break;
+          case Choice::H:
+            memory_temp.set_s_hmem(stoll(sValue));
+          break;
+          case Choice::R:
+            memory_temp.set_s_reclaimable(stoll(sValue));
+          break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+  *memory = memory_temp;
 }

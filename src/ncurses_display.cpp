@@ -59,6 +59,7 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
 }
 
 void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
+                                      std::vector<PrevProcess>* prevProcesses,
                                       WINDOW* window, int n) {
   int row{0};
   int const pid_column{2};
@@ -79,7 +80,7 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   for (int i = 0; i < num_processes; ++i) {
     mvwprintw(window, ++row, pid_column, to_string(processes[i].Pid()).c_str());
     mvwprintw(window, row, user_column, processes[i].User().c_str());
-    float cpu = processes[i].CpuUtilization(); // *100 original
+    float cpu = processes[i].CpuUtilization(prevProcesses); // *100 original
     mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 4).c_str());
     mvwprintw(window, row, ram_column, processes[i].Ram().c_str());
     mvwprintw(window, row, time_column,
@@ -106,11 +107,14 @@ void NCursesDisplay::Display(System& system, int n) {
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     box(system_window, 0, 0);
     box(process_window, 0, 0);
+
     LinuxParser::ProcStatParsin(&system); // Auxiliary function for parsing data
+    LinuxParser::UpTime(system.GetUptimeRawPtr());
     LinuxParser::Pids(system.GetProcessVectorRawPrt());
     LinuxParser::MemoryParse(system.GetMemoryRawPtr());
+
     DisplaySystem(system, system_window);
-    DisplayProcesses(system.Processes(), process_window, n);
+    DisplayProcesses(system.Processes(),system.GetPrevProcessVectorRawPrt(), process_window, n);
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();

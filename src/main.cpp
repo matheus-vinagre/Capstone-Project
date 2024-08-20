@@ -14,10 +14,13 @@ using std::vector;
 
 int main() {
   System system;
+
   LinuxParser::ProcStatParsin(&system);
   LinuxParser::OperatingSystem(system.GetOsRawPtr());
   LinuxParser::Kernel(system.GetKernelRawPtr());
+  LinuxParser::UpTime(system.GetUptimeRawPtr());
   LinuxParser::Pids(system.GetProcessVectorRawPrt());
   LinuxParser::MemoryParse(system.GetMemoryRawPtr());
+
   NCursesDisplay::Display(system);
 }

@@ -4,29 +4,42 @@
 #include <unistd.h>
 #include <cctype>
 #include <string>
+#include <utility>
 #include <vector>
 
 using std::string;
 using std::to_string;
 using std::vector;
 
-template <typename Type>
-Type Sub(Type a, Type b) {
-  return (a > b) ? (a - b) : 0;
+PrevProcess::PrevProcess(int pid): _pid(pid) {}
+int PrevProcess::pid() const { return _pid; }
+void PrevProcess::set_pid(int pid) { _pid = pid; }
+long & PrevProcess::totaltime() { return _totaltime; }
+void PrevProcess::set_totaltime(long totaltime) { _totaltime = totaltime; }
+long & PrevProcess::uptime() { return _uptime; }
+void PrevProcess::set_uptime(long uptime) { _uptime = uptime; }
+
+
+Process::Process(int pid, long utime, long stime, long cutime, long cstime, long starttime, long sys_uptime,
+                 std::string user, std::string uid, std::string ram, std::string command): _pid(pid),
+                                                                                           _utime(utime),
+                                                                                           _stime(stime),
+                                                                                           _cutime(cutime),
+                                                                                           _cstime(cstime),
+                                                                                           _starttime(starttime),
+                                                                                           _sysUptime(sys_uptime),
+                                                                                           _user(std::move(user)),
+                                                                                           _uid(std::move(uid)),
+                                                                                           _ram(std::move(ram)),
+                                                                                           _command(std::move(command))
+{}
+
+long& Process::totaltime() { return _totaltime; }
+void Process::set_totaltime(long last_totaltime) {
+  _totaltime = last_totaltime;
 }
-
-Process::Process(const int pid): pid_(pid){}
-
-
-long& Process::last_totaltime() { return last_totaltime_; }
-void Process::set_last_totaltime(long last_totaltime) {
-  last_totaltime_ = last_totaltime;
-}
-long& Process::last_uptime() { return last_uptime_; }
-void Process::set_last_uptime(long last_uptime) { last_uptime_ = last_uptime; }
-
-int Process::Pid() { return pid_; }
-
+long& Process::uptime() { return _uptime; }
+void Process::set_uptime(long last_uptime) { _uptime = last_uptime; }
 
 double calculateCpu(const long& delta_totaltime, const long& delta_uptime) {
   long clockTicks = sysconf(_SC_CLK_TCK);
@@ -37,58 +50,75 @@ double calculateCpu(const long& delta_totaltime, const long& delta_uptime) {
   double cpuPercent = ((dd_delta_totaltime  / clockTicks) / delta_uptime);
   return cpuPercent;
 }
-vector<long> Prev(int pid, long totaltime, long uptime) {
-  if(LinuxParser::prevProcesses.empty()) {
-    Process prevprocess(pid);
-    prevprocess.set_last_totaltime(totaltime);
-    prevprocess.set_last_uptime(uptime);
-    LinuxParser::prevProcesses.push_back(prevprocess);
-    vector<long> prev({0 ,0});
-    return prev;
+vector<long> Prev(int pid, long totaltime, long uptime, std::vector<PrevProcess>* prevProcesses) {
+  // if theres no process saved inside the vector of Previus processes, it adds the first
+  if(prevProcesses->empty()) {
+    PrevProcess prevProc(pid);
+    prevProc.set_totaltime(totaltime);
+    prevProc.set_uptime(uptime);
+    prevProcesses->push_back(prevProc);
+    vector<long> prev_totaltime_and_uptime({0 ,0});
+    return prev_totaltime_and_uptime;
   }
-  for(auto prev : LinuxParser::prevProcesses ) {
-    if(prev.Pid() == pid) {
-      long last_totaltime = prev.last_totaltime();
-      long last_uptime = prev.last_uptime();
-      prev.set_last_totaltime(totaltime);
-      prev.set_last_uptime(uptime);
-      vector<long> prevProcess({last_totaltime, last_uptime});
-      return prevProcess;
-    }
+  // try to find the previus process with the pid number, if found,
+  // returns the values of totaltime and uptime and atualizates it.
+  auto it = std::lower_bound(prevProcesses->begin(), prevProcesses->end(),
+                pid, [](const PrevProcess& process, int pid) {
+                  return process.pid() < pid;
+                  //lambda function compares the pid of PrevProcess objects to the target pid.
+    });
+  if (it != prevProcesses->end() && it->pid() == pid) {
+    long last_totaltime = it->totaltime();
+    long last_uptime = it->uptime();
+    it->set_totaltime(totaltime);
+    it->set_uptime(uptime);
+    vector<long> prevProcess({last_totaltime, last_uptime});
+    return prevProcess;
   }
-  Process prevprocess(pid);
-  prevprocess.set_last_totaltime(totaltime);
-  prevprocess.set_last_uptime(uptime);
-  LinuxParser::prevProcesses.push_back(prevprocess);
-  vector<long> prev({0 ,0});
-  return prev;
+  // if isn't empty and dosen't find the exact pid number, create and push it inside the vector
+  PrevProcess prevProc(pid);
+  prevProc.set_totaltime(totaltime);
+  prevProc.set_uptime(uptime);
+  prevProcesses->push_back(prevProc);
+  std::sort(prevProcesses->begin(), prevProcesses->end(), [](const PrevProcess& a, const PrevProcess& b) {
+        return a.pid() < b.pid();
+    });
+  vector<long> prev_totaltime_and_uptime({0 ,0});
+  return prev_totaltime_and_uptime;
 }
 
-float Process::CpuUtilization() {
+template <typename Type>
+Type Sub(Type a, Type b) { return (a > b) ? (a - b) : 0; }
 
-  vector<long> datas = LinuxParser::ActiveJiffies(pid_);
-  int pid = pid_;
-  long totaltime = datas[0] + datas[1] + datas[2] + datas[3];
-  long uptime = LinuxParser::UpTime(pid_);
-  vector<long> prevProcess = Prev(pid,totaltime, uptime);
-  long d_totaltime = Sub(totaltime, prevProcess[0]);
-  long d_uptime = Sub(uptime,prevProcess[1]);
+float Process::CpuUtilization(std::vector<PrevProcess>* prevProcesses) {
+  vector<long> prevProcess = Prev(_pid,_totaltime, _uptime, prevProcesses );
+  long d_totaltime = Sub(_totaltime, prevProcess[0]);
+  long d_uptime = Sub(_uptime,prevProcess[1]);
   double cpuUsage = calculateCpu(d_totaltime, d_uptime);
   return cpuUsage;
+
 }
-string Process::Command() { return LinuxParser::Command(pid_); }
 
-string Process::Ram() {return LinuxParser::Ram(pid_);}
+int Process::Pid() { return _pid; }
 
-string Process::User() { return LinuxParser::User(LinuxParser::Uid(pid_)); }
+string Process::Command() { return _command; }
 
-long int Process::UpTime() { return LinuxParser::UpTime(pid_); }
+string Process::Ram() {return _ram;}
+
+string Process::User() { return _uid; }
+
+long int Process::UpTime() {
+  return ( _starttime / sysconf(_SC_CLK_TCK)) - _sysUptime ;
+}
 
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator<(Process const& other) const {
-  float a = std::stof(LinuxParser::Ram(pid_));
-  float b = std::stof(LinuxParser::Ram(other.pid_));
+  float a = std::stof(_ram);
+  float b = std::stof(other._ram);
   return a > b;
 }
+
+
+
 
 

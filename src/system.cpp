@@ -35,7 +35,7 @@ int System::RunningProcesses() { return *_runningProcess; }
 
 int System::TotalProcesses() { return _processes->size(); }
 
-long System::UpTime() { return LinuxParser::UpTime(); }
+long System::UpTime() { return *_upTime; }
 
 int* System::GetRunningProcessRawPtr() {
   return _runningProcess.get();
@@ -45,6 +45,9 @@ int* System::GetTotalProcessRawPtr() {
 }
 int* System::GetCpuNRawPtr() {
   return _cpuN.get();
+}
+long* System::GetUptimeRawPtr() {
+  return _upTime.get();
 }
 Memory* System::GetMemoryRawPtr() {
   return _memory.get();
@@ -60,4 +63,7 @@ std::vector<Processor>* System::GetCpuVectorRawPtr() {
 }
 std::vector<Process>* System::GetProcessVectorRawPrt() {
   return _processes.get();
+}
+std::vector<PrevProcess>* System::GetPrevProcessVectorRawPrt() {
+  return _prevProcesses.get();
 }

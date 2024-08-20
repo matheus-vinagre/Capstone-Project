@@ -6,6 +6,8 @@
 #include <system.h>
 #include <regex>
 #include <string>
+#include <experimental/filesystem>
+#include <boost/filesystem.hpp>
 
 
 namespace LinuxParser {
@@ -26,7 +28,7 @@ void ProcStatParsin(System* system);
 
 // System
 void MemoryParse(Memory* memory);
-long UpTime();
+void UpTime(long* upTime);
 void Pids(std::vector<Process>* processes);
 
 
@@ -63,15 +65,19 @@ enum CPUStates {
 std::vector<std::vector<std::string>> CpuUtilization();
 
 // Processes
+namespace fs = boost::filesystem;
+
+long SysUpTime();
+
 long Jiffies();
 long ActiveJiffies();
-std::vector<long> ActiveJiffies(int pid);
+std::vector<long> ActiveJiffies(const std::string& spid);
 long IdleJiffies();
 std::string Command(int pid);
-std::string Ram(int pid);
-std::string Uid(int pid);
+std::string Ram(const std::string& spid);
+std::string Uid(const std::string& spid);
 std::string User(const std::string& uid);
-long int UpTime(int pid);
+//long int UpTime(const std::string& spid);
 void InitializePrevProcessor(int N);
 };  // namespace LinuxParser
 
