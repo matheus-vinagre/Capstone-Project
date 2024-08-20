@@ -228,7 +228,7 @@ string LinuxParser::Command(int pid) {
         std::cerr << "Warning: Command line for PID " << spid << " is empty." << std::endl;
       }
     } else {
-      std::cerr << "Error: Could not read the command line for PID " << spid << std::endl;
+     // std::cerr << "Error: Could not read the command line for PID " << spid << std::endl;
     }
   } else {
     std::cerr << "Error: Could not open file for PID " << spid << std::endl;

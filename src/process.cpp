@@ -105,7 +105,7 @@ string Process::Command() { return _command; }
 
 string Process::Ram() {return _ram;}
 
-string Process::User() { return _uid; }
+string Process::User() { return _user; }
 
 long int Process::UpTime() {
   return ( _starttime / sysconf(_SC_CLK_TCK)) - _sysUptime ;
