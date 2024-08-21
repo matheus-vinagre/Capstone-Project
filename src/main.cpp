@@ -15,6 +15,7 @@ using std::vector;
 int main() {
   System system;
 
+  //Collect Data thread
   LinuxParser::ProcStatParsin(&system);
   LinuxParser::OperatingSystem(system.GetOsRawPtr());
   LinuxParser::Kernel(system.GetKernelRawPtr());
@@ -22,5 +23,15 @@ int main() {
   LinuxParser::Pids(system.GetProcessVectorRawPrt());
   LinuxParser::MemoryParse(system.GetMemoryRawPtr());
 
+  //Process Data thread
+  for(unsigned long long i = 0; i < system.Cpu().size();i++ ) {
+    system.Cpu()[i].Utilization(system.GetPrevCpuVectorRawPtr());
+  }
+  for(size_t i = 0; i<system.Processes().size(); i++) {
+    system.Processes()[i].CpuUtilization(system.GetPrevProcessVectorRawPrt());
+  }
+  system.GetMemoryRawPtr()->MemoryUtilization();
+
+  // Display Data thread
   NCursesDisplay::Display(system);
 }
