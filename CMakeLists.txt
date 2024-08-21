@@ -30,10 +30,14 @@ file(GLOB SOURCES "src/*.cpp")
 # Create the executable
 add_executable(monitor ${SOURCES}
         include/memory.h
-        src/memory.cpp)
+        src/memory.cpp
+        src/ThreadPool.cpp
+        include/ThreadPool.h)
 
 # Link libraries explicitly
 target_link_libraries(monitor ${CURSES_LIBRARIES} ${BOOST_FILESYSTEM_LIB} ${BOOST_SYSTEM_LIB})
-
+# Add pthreads for thread support
+find_package(Threads REQUIRED)
+target_link_libraries(monitor ${CMAKE_THREAD_LIBS_INIT})
 # Compile options
 target_compile_options(monitor PRIVATE -Wall -Wextra)

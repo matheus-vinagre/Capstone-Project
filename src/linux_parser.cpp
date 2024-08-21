@@ -11,7 +11,9 @@
 #include <system.h>
 #include <vector>
 #include <processor.h>
+#include <process.h>
 #include <memory.h>
+#include <ThreadPool.h>
 using std::stof;
 using std::string;
 using std::to_string;
@@ -19,6 +21,7 @@ using std::vector;
 
 // Collect system and cpu data from proc/stat
 void LinuxParser::ProcStatParsin(System* system) {
+  system->UpdateSystemMutex();
   vector<string> cpuData(11);
   string s_totalProcesses, s_runningProcess;
   std::ifstream filestream(kProcDirectory + kStatFilename);
@@ -99,7 +102,8 @@ bool is_digits(const std::string& str) {
 
 // Function to create the vector of processes
 namespace fs = boost::filesystem;
-void LinuxParser::Pids(std::vector<Process>* processes) {
+void LinuxParser::Pids(System* system) {
+    system->UpdateSystemMutex();
     std::vector<Process> temp_processes;
     const fs::path dirpath = "/proc"; // Update with your directory path
     // Iterate over the directory entries
@@ -120,7 +124,7 @@ void LinuxParser::Pids(std::vector<Process>* processes) {
             }
         }
     }
-  processes->swap(temp_processes);
+  system->GetProcessVectorRawPrt()->swap(temp_processes);
   temp_processes.clear();
 }
 
@@ -239,7 +243,8 @@ string LinuxParser::User(const string& uid) {
 bool operator==(const string& lhs, long rhs);
 
 //Collect system uptime
-void LinuxParser::UpTime(long* upTime) {
+void LinuxParser::UpTime(System* system) {
+  system->UpdateSystemMutex();
   std::ifstream filestream(LinuxParser::kProcDirectory +
                            LinuxParser::kUptimeFilename);
   long upTime_temp;
@@ -250,7 +255,7 @@ void LinuxParser::UpTime(long* upTime) {
     linestream >> s_upTime >> s_idleTime;
     upTime_temp = std::stol(s_upTime);
   }
-  *upTime = upTime_temp;
+  *system->GetUptimeRawPtr() = upTime_temp;
 }
 
 //Collect system uptime
@@ -269,7 +274,8 @@ long LinuxParser::SysUpTime() {
 }
 
 //Collect memory data
-void LinuxParser::MemoryParse(Memory* memory) {
+void LinuxParser::MemoryParse(System* system) {
+  system->UpdateSystemMutex();
   enum class Choice{A, T, F, B, C, H, R};
   std::map<string, Choice> stringToEnumMap
       = { {"bugKill", Choice::A},
@@ -317,5 +323,33 @@ void LinuxParser::MemoryParse(Memory* memory) {
       }
     }
   }
-  *memory = memory_temp;
+  *system->GetMemoryRawPtr() = memory_temp;
 }
+/*
+// Function to process a single CPU element
+void ProcessCpuElement(Processor& cpu, System* system) {
+  cpu.Utilization(system);
+}
+
+// Function to process a single process element
+void ProcessProcessElement(Process& process, System* system) {
+  process.CpuUtilization(system);
+}
+
+// Function to process CPU vector using a thread pool
+void LinuxParser::ProcessCpuVector(ThreadPool& pool, System* system) {
+  for (auto& cpu : system.Cpu()) {
+    pool.enqueue([&cpu, &system]() {
+        ProcessCpuElement(cpu, system);
+    });
+  }
+}
+
+// Function to process process vector using a thread pool
+void LinuxParser::ProcessProcessVector(ThreadPool& pool, System* system) {
+  for (auto& process : system->Processes()) {
+    pool.enqueue([&process, &system]() {
+        ProcessProcessElement(process, system);
+    });
+  }
+*/

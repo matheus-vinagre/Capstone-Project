@@ -7,6 +7,8 @@
 #include "format.h"
 #include "ncurses_display.h"
 #include "system.h"
+#include <thread>
+#include <ThreadPool.h>
 
 using std::string;
 using std::to_string;
@@ -101,30 +103,41 @@ void NCursesDisplay::Display(System& system, int n) {
   WINDOW* process_window =
       newwin(3 + n, x_max - 1, getmaxy(system_window) + 1, 0);
 
+  std::vector<std::thread> threads;
+  //ThreadPool pool(std::thread::hardware_concurrency());
   while (1) {
     init_pair(1, COLOR_BLUE, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     box(system_window, 0, 0);
     box(process_window, 0, 0);
 
-    LinuxParser::ProcStatParsin(&system); // Auxiliary function for parsing data
-    LinuxParser::UpTime(system.GetUptimeRawPtr());
-    LinuxParser::Pids(system.GetProcessVectorRawPrt());
-    LinuxParser::MemoryParse(system.GetMemoryRawPtr());
+    threads.emplace_back([&]() { LinuxParser::ProcStatParsin(&system); });
+    threads.emplace_back([&]() { LinuxParser::UpTime(&system); });
+    threads.emplace_back([&]() { LinuxParser::Pids(&system); });
+    threads.emplace_back([&]() { LinuxParser::MemoryParse(&system); });
+
+    for (auto& thread : threads) {
+      if (thread.joinable()) {
+        thread.join();
+      }
+    }
 
     for(unsigned long long i = 0; i < system.Cpu().size();i++ ) {
       system.Cpu()[i].Utilization(system.GetPrevCpuVectorRawPtr());
     }
-    system.GetMemoryRawPtr()->MemoryUtilization();
+
     for(size_t i = 0; i<system.Processes().size(); i++) {
       system.Processes()[i].CpuUtilization(system.GetPrevProcessVectorRawPrt());
     }
+
+    system.GetMemoryRawPtr()->MemoryUtilization();
 
     DisplaySystem(system, system_window);
     DisplayProcesses(system.Processes(), process_window, n);
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
+    threads.clear();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
   endwin();

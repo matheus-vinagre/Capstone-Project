@@ -525,3 +525,97 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "CMakeLists.txt:38 (find_package)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ukN7rQ"
+      binary: "/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ukN7rQ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ukN7rQ'
+        
+        Run Build Command(s): /home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/ninja/linux/x64/ninja -v cmTC_f4fb2
+        [1/2] /usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_f4fb2.dir/src.c.o -c /home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-ukN7rQ/src.c
+        [2/2] : && /usr/bin/cc  -rdynamic CMakeFiles/cmTC_f4fb2.dir/src.c.o -o cmTC_f4fb2   && :
+        \x1b[31mFAILED: \x1b[0mcmTC_f4fb2 
+        : && /usr/bin/cc  -rdynamic CMakeFiles/cmTC_f4fb2.dir/src.c.o -o cmTC_f4fb2   && :
+        /usr/lib64/gcc/x86_64-suse-linux/7/../../../../x86_64-suse-linux/bin/ld: CMakeFiles/cmTC_f4fb2.dir/src.c.o: in function `main':
+        src.c:(.text+0x2d): undefined reference to `pthread_create'
+        /usr/lib64/gcc/x86_64-suse-linux/7/../../../../x86_64-suse-linux/bin/ld: src.c:(.text+0x39): undefined reference to `pthread_detach'
+        /usr/lib64/gcc/x86_64-suse-linux/7/../../../../x86_64-suse-linux/bin/ld: src.c:(.text+0x45): undefined reference to `pthread_cancel'
+        /usr/lib64/gcc/x86_64-suse-linux/7/../../../../x86_64-suse-linux/bin/ld: src.c:(.text+0x56): undefined reference to `pthread_join'
+        collect2: error: ld returned 1 exit status
+        ninja: build stopped: subcommand failed.
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "CMakeLists.txt:38 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-icbzOP"
+      binary: "/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-icbzOP"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-icbzOP'
+        
+        Run Build Command(s): /home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/ninja/linux/x64/ninja -v cmTC_7cd57
+        [1/2] /usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_7cd57.dir/CheckFunctionExists.c.o -c /home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-icbzOP/CheckFunctionExists.c
+        [2/2] : && /usr/bin/cc -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_7cd57.dir/CheckFunctionExists.c.o -o cmTC_7cd57  -lpthreads && :
+        \x1b[31mFAILED: \x1b[0mcmTC_7cd57 
+        : && /usr/bin/cc -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_7cd57.dir/CheckFunctionExists.c.o -o cmTC_7cd57  -lpthreads && :
+        /usr/lib64/gcc/x86_64-suse-linux/7/../../../../x86_64-suse-linux/bin/ld: cannot find -lpthreads: No such file or directory
+        collect2: error: ld returned 1 exit status
+        ninja: build stopped: subcommand failed.
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "/home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "CMakeLists.txt:38 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-c8ssAO"
+      binary: "/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-c8ssAO"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-c8ssAO'
+        
+        Run Build Command(s): /home/Vinagre/.local/share/JetBrains/Toolbox/apps/clion/bin/ninja/linux/x64/ninja -v cmTC_1bdcc
+        [1/2] /usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_1bdcc.dir/CheckFunctionExists.c.o -c /home/Vinagre/Documents/Udacity/Capstone-SysMonitor/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-c8ssAO/CheckFunctionExists.c
+        [2/2] : && /usr/bin/cc -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_1bdcc.dir/CheckFunctionExists.c.o -o cmTC_1bdcc  -lpthread && :
+        
+      exitCode: 0
+...

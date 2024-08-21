@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <mutex>
 #include "memory.h"
 #include "process.h"
 #include "processor.h"
@@ -31,7 +31,10 @@ class System {
         std::vector<Process>* GetProcessVectorRawPrt();
         std::vector<PrevProcessor>* GetPrevCpuVectorRawPtr();
         std::vector<PrevProcess>* GetPrevProcessVectorRawPrt();
+
+        void UpdateSystemMutex();
     private:
+        std::mutex _systemMutex;
 
         std::unique_ptr<std::vector<Processor>> _cpu = std::make_unique<std::vector<Processor>>();
         std::unique_ptr<std::vector<PrevProcessor>> _prevCpu = std::make_unique<std::vector<PrevProcessor>>();

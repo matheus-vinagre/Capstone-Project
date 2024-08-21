@@ -7,11 +7,17 @@
 #include "process.h"
 #include "processor.h"
 #include <memory.h>
+#include <mutex>
 
 using std::set;
 using std::size_t;
 using std::string;
 using std::vector;
+
+void System::UpdateSystemMutex() {
+  std::lock_guard<std::mutex> lock(_systemMutex);
+  // Update ProcStat data
+}
 
 vector<Processor>& System::Cpu() {
     return *_cpu;
