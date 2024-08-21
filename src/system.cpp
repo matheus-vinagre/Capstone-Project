@@ -64,6 +64,9 @@ std::vector<Processor>* System::GetCpuVectorRawPtr() {
 std::vector<Process>* System::GetProcessVectorRawPrt() {
   return _processes.get();
 }
+std::vector<PrevProcessor>* System::GetPrevCpuVectorRawPtr() {
+  return _prevCpu.get();
+}
 std::vector<PrevProcess>* System::GetPrevProcessVectorRawPrt() {
   return _prevProcesses.get();
 }

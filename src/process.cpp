@@ -90,13 +90,14 @@ vector<long> Prev(int pid, long totaltime, long uptime, std::vector<PrevProcess>
 template <typename Type>
 Type Sub(Type a, Type b) { return (a > b) ? (a - b) : 0; }
 
-float Process::CpuUtilization(std::vector<PrevProcess>* prevProcesses) {
+void Process::CpuUtilization(std::vector<PrevProcess>* prevProcesses) {
   vector<long> prevProcess = Prev(_pid,_totaltime, _uptime, prevProcesses );
   long d_totaltime = Sub(_totaltime, prevProcess[0]);
   long d_uptime = Sub(_uptime,prevProcess[1]);
-  double cpuUsage = calculateCpu(d_totaltime, d_uptime);
-  return cpuUsage;
-
+  _cpuUsage = calculateCpu(d_totaltime, d_uptime);
+}
+float Process::GetCpuUtilization() {
+  return _cpuUsage;
 }
 
 int Process::Pid() { return _pid; }

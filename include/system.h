@@ -29,10 +29,12 @@ class System {
         Memory* GetMemoryRawPtr();
         std::vector<Processor>* GetCpuVectorRawPtr();
         std::vector<Process>* GetProcessVectorRawPrt();
+        std::vector<PrevProcessor>* GetPrevCpuVectorRawPtr();
         std::vector<PrevProcess>* GetPrevProcessVectorRawPrt();
     private:
 
         std::unique_ptr<std::vector<Processor>> _cpu = std::make_unique<std::vector<Processor>>();
+        std::unique_ptr<std::vector<PrevProcessor>> _prevCpu = std::make_unique<std::vector<PrevProcessor>>();
         std::unique_ptr<std::vector<Process>> _processes = std::make_unique<std::vector<Process>>();
         std::unique_ptr<std::vector<PrevProcess>> _prevProcesses = std::make_unique<std::vector<PrevProcess>>();
         std::unique_ptr<Memory> _memory = std::make_unique<Memory>();

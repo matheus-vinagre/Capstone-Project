@@ -27,11 +27,6 @@ namespace LinuxParser{
   	std::vector<Process> prevProcesses;
 }
 
-int LinuxParser::CpuN() { return cpuN; }
-void LinuxParser::InitializePrevProcessor(int N) {
-  LinuxParser::prevProcessor.resize(N); // Resize the vector based on the value of N
-}
-
 void LinuxParser::ProcStatParsin(System* system) {
   vector<string> cpuData(11);
   string s_totalProcesses, s_runningProcess;

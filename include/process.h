@@ -21,7 +21,8 @@ public:
     int Pid();
     std::string User();
     std::string Command();
-    float CpuUtilization(std::vector<PrevProcess>* PrevProcesses);
+    void CpuUtilization(std::vector<PrevProcess>* PrevProcesses);
+    float GetCpuUtilization();
     std::string Ram();
     long UpTime();
     bool operator<(Process const& a) const;
@@ -34,6 +35,7 @@ private:
 
     long _totaltime = _utime + _stime + _cutime + _cstime;
     long _uptime = _sysUptime - ( _starttime / sysconf(_SC_CLK_TCK));
+    float _cpuUsage=0;
 };
 
 class PrevProcess {

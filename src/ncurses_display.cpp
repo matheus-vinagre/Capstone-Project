@@ -39,14 +39,14 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
     mvwprintw(window, ++row, 2, ("CPU " + std::to_string(i) + ": ").c_str());
     wattron(window, COLOR_PAIR(1));
     mvwprintw(window, row, 10, "");
-    wprintw(window, ProgressBar(system.Cpu()[i].Utilization()).c_str());
+    wprintw(window, ProgressBar(system.Cpu()[i].GetUtilization()).c_str());
     wattroff(window, COLOR_PAIR(1));
   }
 
   mvwprintw(window, ++row, 2, "Memory: ");
   wattron(window, COLOR_PAIR(1));
   mvwprintw(window, row, 10, "");
-  wprintw(window, ProgressBar(system.MemoryUtilization()).c_str());
+  wprintw(window, ProgressBar(system.GetMemoryRawPtr()->mem_percent_util()).c_str());
   wattroff(window, COLOR_PAIR(1));
   mvwprintw(window, ++row, 2,
             ("Total Processes: " + to_string(system.TotalProcesses())).c_str());
@@ -59,7 +59,6 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
 }
 
 void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
-                                      std::vector<PrevProcess>* prevProcesses,
                                       WINDOW* window, int n) {
   int row{0};
   int const pid_column{2};
@@ -80,7 +79,7 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   for (int i = 0; i < num_processes; ++i) {
     mvwprintw(window, ++row, pid_column, to_string(processes[i].Pid()).c_str());
     mvwprintw(window, row, user_column, processes[i].User().c_str());
-    float cpu = processes[i].CpuUtilization(prevProcesses); // *100 original
+    float cpu = processes[i].GetCpuUtilization(); // *100 original
     mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 4).c_str());
     mvwprintw(window, row, ram_column, processes[i].Ram().c_str());
     mvwprintw(window, row, time_column,
@@ -113,12 +112,20 @@ void NCursesDisplay::Display(System& system, int n) {
     LinuxParser::Pids(system.GetProcessVectorRawPrt());
     LinuxParser::MemoryParse(system.GetMemoryRawPtr());
 
+    for(unsigned long long i = 0; i < system.Cpu().size();i++ ) {
+      system.Cpu()[i].Utilization(system.GetPrevCpuVectorRawPtr());
+    }
+    system.GetMemoryRawPtr()->MemoryUtilization();
+    for(size_t i = 0; i<system.Processes().size(); i++) {
+      system.Processes()[i].CpuUtilization(system.GetPrevProcessVectorRawPrt());
+    }
+
     DisplaySystem(system, system_window);
-    DisplayProcesses(system.Processes(),system.GetPrevProcessVectorRawPrt(), process_window, n);
+    DisplayProcesses(system.Processes(), process_window, n);
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
   endwin();
 }
