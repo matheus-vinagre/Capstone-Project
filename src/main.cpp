@@ -23,7 +23,7 @@ int main() {
   LinuxParser::Pids(system.GetProcessVectorRawPrt());
   LinuxParser::MemoryParse(system.GetMemoryRawPtr());
 
-  //Process Data thread
+  /*Process Data thread
   for(unsigned long long i = 0; i < system.Cpu().size();i++ ) {
     system.Cpu()[i].Utilization(system.GetPrevCpuVectorRawPtr());
   }
@@ -31,6 +31,7 @@ int main() {
     system.Processes()[i].CpuUtilization(system.GetPrevProcessVectorRawPrt());
   }
   system.GetMemoryRawPtr()->MemoryUtilization();
+  */
 
   // Display Data thread
   NCursesDisplay::Display(system);
