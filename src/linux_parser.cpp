@@ -17,16 +17,7 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-// Parse everything I need from proc/stat
-namespace LinuxParser{
-	int totalProcesses;
-  int runningProcesses;
- 	std::vector<PrevProcessor> prevProcessor;
-  std::vector<std::vector<std::string>> cpuUtilization;
-	int cpuN;
-  	std::vector<Process> prevProcesses;
-}
-
+// Collect system and cpu data from proc/stat
 void LinuxParser::ProcStatParsin(System* system) {
   vector<string> cpuData(11);
   string s_totalProcesses, s_runningProcess;
@@ -44,7 +35,6 @@ void LinuxParser::ProcStatParsin(System* system) {
                  >> cpuData[kSoftIRQ_] >> cpuData[kSteal_] >> cpuData[kGuest_]
                  >> cpuData[kGuestNice_];
       cpuData[kCpuNumber] = to_string( cpuCount - 1 );
-     // cpuUtilization.push_back(cpuData);
       Processor processor(cpuData);
       cpu_temp.emplace_back(processor);
     }
@@ -65,7 +55,7 @@ void LinuxParser::ProcStatParsin(System* system) {
   system->GetCpuVectorRawPtr()->swap(cpu_temp);
 }
 
-// DONE: An example of how to read data from the filesystem
+//Collect the OS name
 void LinuxParser::OperatingSystem(std::string* os) {
   string os_temp;
   std::ifstream filestream(kOSPath);
@@ -87,7 +77,7 @@ void LinuxParser::OperatingSystem(std::string* os) {
   }
 }
 
-// DONE: An example of how to read data from the filesystem
+//Collect kernel version
 void LinuxParser::Kernel(std::string* kernel) {
   string kernel_temp;
   std::ifstream stream(kProcDirectory + kVersionFilename);
@@ -102,33 +92,13 @@ void LinuxParser::Kernel(std::string* kernel) {
   *kernel = kernel_temp;
 }
 
-// BONUS: Update this to use std::filesystem
-/*vector<int> LinuxParser::Pids() {
-  vector<int> pids;
-  DIR* directory = opendir(kProcDirectory.c_str());
-  struct dirent* file;
-  while ((file = readdir(directory)) != nullptr) {
-    // Is this a directory?
-    if (file->d_type == DT_DIR) {
-      // Is every character of the name a digit?
-      string filename(file->d_name);
-      if (std::all_of(filename.begin(), filename.end(), isdigit)) {
-        int pid = stoi(filename);
-        pids.push_back(pid);
-      }
-    }
-  }
-  closedir(directory);
-  return pids;
-}
-*/
-// New code filesystem
-namespace fs = boost::filesystem;
+//auxiliary function to verify if its only numbers in a string
 bool is_digits(const std::string& str) {
     return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
 }
 
-// Function to list process IDs
+// Function to create the vector of processes
+namespace fs = boost::filesystem;
 void LinuxParser::Pids(std::vector<Process>* processes) {
     std::vector<Process> temp_processes;
     const fs::path dirpath = "/proc"; // Update with your directory path
@@ -154,10 +124,7 @@ void LinuxParser::Pids(std::vector<Process>* processes) {
   temp_processes.clear();
 }
 
-// Not Used! I use ProcStatParsin() instead.
-// And caculate the rest inside Processor class.
-long LinuxParser::Jiffies() { return 0; }
-
+//Collect pid cpu data
 vector<long> LinuxParser::ActiveJiffies(const std::string& spid) {
   long utime, stime, cutime, cstime, starttime;
   std::ifstream filestream(LinuxParser::kProcDirectory + spid +
@@ -193,24 +160,7 @@ vector<long> LinuxParser::ActiveJiffies(const std::string& spid) {
   return datas;
 }
 
-// Not Used! I use ProcStatParsin() instead.
-// And caculate the rest inside Processor class.
-long LinuxParser::ActiveJiffies() { return 0; }
-
-// Not Used! I use ProcStatParsin() instead.
-// And caculate the rest inside Processor class.
-long LinuxParser::IdleJiffies() { return 0; }
-
-vector<vector<string>> LinuxParser::CpuUtilization() {
-  vector<vector<string>> cpuUtilizationTemp = cpuUtilization;
-  cpuUtilization.clear();
-  return cpuUtilizationTemp;
-}
-
-int LinuxParser::TotalProcesses() { return totalProcesses;}
-
-int LinuxParser::RunningProcesses() { return runningProcesses;}
-
+//Collect command line for a specific Pid
 string LinuxParser::Command(int pid) {
   std::string spid = to_string(pid);
   std::ifstream filestream(LinuxParser::kProcDirectory + spid + LinuxParser::kCmdlineFilename);
@@ -232,6 +182,7 @@ string LinuxParser::Command(int pid) {
   return line;
 }
 
+//Collect ram data for a specific Pid
 string LinuxParser::Ram(const std::string& spid) {
   string ram, kb;
   std::ifstream filestream(LinuxParser::kProcDirectory + spid +
@@ -252,6 +203,7 @@ string LinuxParser::Ram(const std::string& spid) {
   return  "0";
 }
 
+//Collect User id for a specific Pid
 string LinuxParser::Uid(const std::string& spid) {
   string uid, uid2 ,uid3, uid4;
   std::ifstream filestream(LinuxParser::kProcDirectory + spid +
@@ -266,6 +218,7 @@ string LinuxParser::Uid(const std::string& spid) {
   return uid;
 }
 
+//Collect User name for a specific Pid
 string LinuxParser::User(const string& uid) {
   string user, psswd, key, gid, gecos, dir, shell;
   std::ifstream filestream(kPasswordPath);
@@ -285,6 +238,7 @@ string LinuxParser::User(const string& uid) {
 
 bool operator==(const string& lhs, long rhs);
 
+//Collect system uptime
 void LinuxParser::UpTime(long* upTime) {
   std::ifstream filestream(LinuxParser::kProcDirectory +
                            LinuxParser::kUptimeFilename);
@@ -298,6 +252,8 @@ void LinuxParser::UpTime(long* upTime) {
   }
   *upTime = upTime_temp;
 }
+
+//Collect system uptime
 long LinuxParser::SysUpTime() {
   std::ifstream filestream(LinuxParser::kProcDirectory +
                            LinuxParser::kUptimeFilename);
@@ -312,25 +268,7 @@ long LinuxParser::SysUpTime() {
   return upTime_temp;
 }
 
-/*long LinuxParser::UpTime(const std::string& spid) {
-  string data;
-  std::ifstream filestream(LinuxParser::kProcDirectory + spid +
-                           LinuxParser::kStatFilename);
-  string line;
-  while (std::getline(filestream, line)) {
-    std::istringstream linestream(line);
-    for(int i=0; i<22;++i ) {
-      linestream >> data;
-    }
-  }
-  if (data == "") {
-    return 0;
-  }
-  long p_uptime = std::stol(data) / sysconf(_SC_CLK_TCK);
-  long s_uptime = UpTime();
-  return s_uptime - p_uptime;
-}*/
-
+//Collect memory data
 void LinuxParser::MemoryParse(Memory* memory) {
   enum class Choice{A, T, F, B, C, H, R};
   std::map<string, Choice> stringToEnumMap

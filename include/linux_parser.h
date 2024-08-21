@@ -23,29 +23,13 @@ const std::string kVersionFilename{"/version"};
 const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
 
-//Proc/stat parsing
-void ProcStatParsin(System* system);
-
-// System
-void MemoryParse(Memory* memory);
-void UpTime(long* upTime);
-void Pids(std::vector<Process>* processes);
-
-
-
-extern int totalProcesses;
-extern int runningProcesses;
-extern std::vector<PrevProcessor> prevProcessor;
-extern std::vector<std::vector<std::string>> cpuUtilization;
-extern int cpuN;
-extern std::vector<Process> prevProcesses;
-
-int CpuN();
-
-int TotalProcesses();
-int RunningProcesses();
-void OperatingSystem(std::string* os);
-void Kernel(std::string* kernel);
+// System parsing
+void ProcStatParsin(System* system); // Collect system and cpu data from proc/stat
+void MemoryParse(Memory* memory); //Collect memory data
+void UpTime(long* upTime); //Collect system uptime
+void Pids(std::vector<Process>* processes); // Function to create the vector processes
+void OperatingSystem(std::string* os); //Collect the OS name
+void Kernel(std::string* kernel); //Collect kernel version
 
 // CPU
 enum CPUStates {
@@ -62,23 +46,13 @@ enum CPUStates {
   kCpuNumber = 10
 };
 
-std::vector<std::vector<std::string>> CpuUtilization();
-
 // Processes
-namespace fs = boost::filesystem;
-
-long SysUpTime();
-
-long Jiffies();
-long ActiveJiffies();
-std::vector<long> ActiveJiffies(const std::string& spid);
-long IdleJiffies();
-std::string Command(int pid);
-std::string Ram(const std::string& spid);
-std::string Uid(const std::string& spid);
-std::string User(const std::string& uid);
-//long int UpTime(const std::string& spid);
-void InitializePrevProcessor(int N);
+long SysUpTime(); //Collect system uptime
+std::vector<long> ActiveJiffies(const std::string& spid); //Collect pid cpu data
+std::string Command(int pid); //Collect command line for a specific Pid
+std::string Ram(const std::string& spid); //Collect ram data for a specific Pid
+std::string Uid(const std::string& spid); //Collect User id for a specific Pid
+std::string User(const std::string& uid); //Collect User name for a specific Pid
 };  // namespace LinuxParser
 
 #endif
