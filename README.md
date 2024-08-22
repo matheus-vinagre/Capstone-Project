@@ -7,17 +7,15 @@ and memory management.
 
 ## Instructions
 
-1. Clone the project repository: `git clone https://github.com/udacity/CppND-System-Monitor-Project-Updated.git`
+1. First install ncurses via terminal with "sudo apt-get install libncurses5-dev libncursesw5-dev"
 
-2. Build the project: `make build`
+2. Clone the project repository: `git clone -b WorkSpaceFinalProject https://github.com/matheus-vinagre/Capstone-Project.git`
+
+2. Build the project:
+`mkdir build && cd build`
+`cmake .. && make`
 
 3. Run the resulting executable: `./build/monitor`
-
-4. Follow along with the lesson.
-
-5. Implement the `System`, `Process`, and `Processor` classes, as well as functions within the `LinuxParser` namespace.
-
-6. Submit!
 
 ## Rubric Points
 ### Loops, Functions, I/O 
