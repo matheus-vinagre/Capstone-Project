@@ -13,6 +13,19 @@
 using std::string;
 using std::to_string;
 
+void CpuUtilizationThread(System& system) {
+  // This loop will run in a separate thread
+  for (unsigned long long i = 0; i < system.Cpu().size(); i++) {
+    system.Cpu()[i].Utilization(system.GetPrevCpuVectorRawPtr());
+  }
+}
+void ProcessCpuUtilizationThread(System& system) {
+  // This loop will run in a separate thread
+  for (size_t i = 0; i < system.Processes().size(); i++) {
+    system.Processes()[i].CpuUtilization(system.GetPrevProcessVectorRawPrt());
+  }
+}
+
 // 50 bars uniformly displayed from 0 - 100 %
 // 2% is one bar(|)
 std::string NCursesDisplay::ProgressBar(float percent) {
@@ -122,12 +135,16 @@ void NCursesDisplay::Display(System& system, int n) {
       }
     }
 
-    for(unsigned long long i = 0; i < system.Cpu().size();i++ ) {
-      system.Cpu()[i].Utilization(system.GetPrevCpuVectorRawPtr());
-    }
+    // Create threads for CPU utilization and process CPU utilization
+    std::thread cpuThread(CpuUtilizationThread, std::ref(system));
+    std::thread processThread(ProcessCpuUtilizationThread, std::ref(system));
 
-    for(size_t i = 0; i<system.Processes().size(); i++) {
-      system.Processes()[i].CpuUtilization(system.GetPrevProcessVectorRawPrt());
+    // Join the threads (wait for them to finish)
+    if (cpuThread.joinable()) {
+      cpuThread.join();
+    }
+    if (processThread.joinable()) {
+      processThread.join();
     }
 
     system.GetMemoryRawPtr()->MemoryUtilization();

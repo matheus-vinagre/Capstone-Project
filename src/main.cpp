@@ -13,8 +13,9 @@ using std::vector;
 #include "system.h"
 
 int main() {
-  System system;
+  System system; //Initializates the system
 
+  // Captures some system data that needs to create Ncurses display properly
   LinuxParser::ProcStatParsin(&system);
   LinuxParser::OperatingSystem(system.GetOsRawPtr());
   LinuxParser::Kernel(system.GetKernelRawPtr());
@@ -22,5 +23,5 @@ int main() {
   LinuxParser::Pids(&system);
   LinuxParser::MemoryParse(&system);
 
-  NCursesDisplay::Display(system);
+  NCursesDisplay::Display(system); // Lauches the display loop
 }
