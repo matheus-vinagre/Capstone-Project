@@ -1,22 +1,9 @@
 //
 // Created by Vinagre on 8/18/24.
 //
-#include "linux_parser.h"
-#include <dirent.h>
-#include <unistd.h>
-#include <fstream>
-#include <experimental/filesystem>
-#include <boost/filesystem.hpp>
-#include <iostream>
-#include <iomanip>
-#include <map>
-#include <string>
-#include <system.h>
-#include <vector>
-#include <processor.h>
 #include <memory.h>
 
-void Memory::MemoryUtilization() {
+void Memory::MemoryUtilization() { //Computes the system memory utilization
     _memUsed = _memTotal - _memFree;
     _memCached_T = _memCached + _sReclaimable - _sHmem;
     _memUtilization = _memUsed - (_memBuffer + _memCached_T);

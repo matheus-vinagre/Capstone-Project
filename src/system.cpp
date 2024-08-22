@@ -31,7 +31,6 @@ vector<Process>& System::Processes() {
 std::string System::Kernel() { return *_kernel; }
 
 float System::MemoryUtilization() {
-  _memory->MemoryUtilization();
   return _memory->mem_percent_util();
 }
 
@@ -43,36 +42,48 @@ int System::TotalProcesses() { return _processes->size(); }
 
 long System::UpTime() { return *_upTime; }
 
-int* System::GetRunningProcessRawPtr() {
-  return _runningProcess.get();
+void System::SetRunningProcess(const int runningProcess) const {
+  *_runningProcess = runningProcess;
 }
-int* System::GetTotalProcessRawPtr() {
-  return _totalProcess.get();
+
+void System::SetTotalProcesses(const int totalProcesses) const {
+  *_totalProcess = totalProcesses;
 }
-int* System::GetCpuNRawPtr() {
-  return _cpuN.get();
+
+void System::SetCpuNumber(const int cpuNumber) const {
+  *_cpuN = cpuNumber;
 }
-long* System::GetUptimeRawPtr() {
-  return _upTime.get();
+void System::SetUptime(const long uptime) const {
+  *_upTime = uptime;
 }
-Memory* System::GetMemoryRawPtr() {
+
+void System::SetMemory(const Memory &memory) const {
+  *_memory = memory;
+}
+Memory* System::GetMemory() const {
   return _memory.get();
 }
-std::string* System::GetOsRawPtr() {
-  return _os.get();
+
+void System::SetOs(const std::string &os) const {
+  *_os = os;
 }
-std::string* System::GetKernelRawPtr() {
-  return _kernel.get();
+
+void System::SetKernel(const std::string &kernel) const {
+  *_kernel = kernel;
 }
-std::vector<Processor>* System::GetCpuVectorRawPtr() {
+
+std::vector<Processor>* System::GetCpuVectorRawPtr() const {
   return _cpu.get();
 }
-std::vector<Process>* System::GetProcessVectorRawPrt() {
+
+std::vector<Process>* System::GetProcessVectorRawPrt() const {
   return _processes.get();
 }
-std::vector<PrevProcessor>* System::GetPrevCpuVectorRawPtr() {
+
+std::vector<PrevProcessor>* System::GetPrevCpuVectorRawPtr() const {
   return _prevCpu.get();
 }
-std::vector<PrevProcess>* System::GetPrevProcessVectorRawPrt() {
+
+std::vector<PrevProcess>* System::GetPrevProcessVectorRawPrt() const {
   return _prevProcesses.get();
 }

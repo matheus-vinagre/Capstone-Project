@@ -4,16 +4,16 @@
 #include <vector>
 #include <unistd.h>
 
-class PrevProcess;
-/*
-Basic class for Process representation
-It contains relevant attributes as shown below
-*/
+class PrevProcess; //foward declaration
+
 class Process {
 public:
+    //Constructor
     Process(int pid, long utime, long stime, long cutime, long cstime,
             long starttime, long sys_uptime, std::string user,
             std::string uid, std::string ram, std::string command);
+
+    //Getters and Setters
     long& totaltime();
     void set_totaltime(long last_totaltime);
     long& uptime();
@@ -21,10 +21,14 @@ public:
     int Pid();
     std::string User();
     std::string Command();
-    void CpuUtilization(std::vector<PrevProcess>* PrevProcesses);
     float GetCpuUtilization();
     std::string Ram();
     long UpTime();
+
+    //Calculate the cpu utilization for a process
+    void CpuUtilization(std::vector<PrevProcess>* PrevProcesses);
+
+    //Used to sort the vector by the ram usage
     bool operator<(Process const& a) const;
 
 private:
@@ -40,14 +44,17 @@ private:
 
 class PrevProcess {
 public:
+    //constructor
     explicit PrevProcess(int pid);
 
+    //Getters and Setters
     int pid() const;
     void set_pid(int pid);
     long & totaltime();
     void set_totaltime(long totaltime);
     long & uptime();
     void set_uptime(long uptime);
+
 private:
     int _pid;
     long _totaltime = 0;

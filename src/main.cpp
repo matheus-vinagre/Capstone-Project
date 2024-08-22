@@ -17,8 +17,8 @@ int main() {
 
   // Captures some system data that needs to create Ncurses display properly
   LinuxParser::ProcStatParsin(&system);
-  LinuxParser::OperatingSystem(system.GetOsRawPtr());
-  LinuxParser::Kernel(system.GetKernelRawPtr());
+  LinuxParser::OperatingSystem(&system);
+  LinuxParser::Kernel(&system);
   LinuxParser::UpTime(&system);
   LinuxParser::Pids(&system);
   LinuxParser::MemoryParse(&system);

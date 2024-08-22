@@ -23,18 +23,15 @@ Processor::Processor(const std::vector<std::string>& data)
       {}
 Processor::Processor() : _user(0), _nice(0), _system(0), _idle(0), _iowait(0), _irq(0),
                     _softirq(0), _steal(0), _guest(0), _guest_nice(0), _cpunumber(0){
-
 }
-
 
 template <typename Type>
   Type Sub(Type a, Type b) { return (a > b ) ? ( a - b ): 0; }
 
-
 void Processor::Utilization(std::vector<PrevProcessor>* prevProcessor) {
   unsigned long long totaltime =
       _usertime + _nicetime + _systemAlltime + _idleAlltime + _steal + _virtalltime;
-
+  // if theres no cpu saved inside the vector of previous cpu, it adds the first
   if(prevProcessor->empty()) {
     PrevProcessor prevProc(_cpunumber);
     unsigned long long deltaIdleAlltime = Sub(_idleAlltime, prevProc.LastIdleAlltime());
@@ -45,6 +42,8 @@ void Processor::Utilization(std::vector<PrevProcessor>* prevProcessor) {
     _utilization = (deltaTotaltime - deltaIdleAlltime) / 1000.0;
     return;
   }
+  // try to find the previus cpu with the cpu number, if found,
+  // returns the cpu.
   auto it = std::lower_bound(prevProcessor->begin(), prevProcessor->end(),
                 _cpunumber, [](const PrevProcessor& processor, unsigned long long cpuNumber) {
                   return processor.GetCpuNumber() < cpuNumber;
@@ -58,6 +57,7 @@ void Processor::Utilization(std::vector<PrevProcessor>* prevProcessor) {
     _utilization = (deltaTotaltime - deltaIdleAlltime) / 1000.0;
     return;
   }
+  // if isn't empty and dosen't find the exact cpu number, create and push it inside the vector
   PrevProcessor prevProc(_cpunumber);
   unsigned long long deltaIdleAlltime = Sub(_idleAlltime, prevProc.LastIdleAlltime());
   unsigned long long deltaTotaltime = Sub(totaltime, prevProc.LastTotaltime());

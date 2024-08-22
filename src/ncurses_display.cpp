@@ -8,19 +8,18 @@
 #include "ncurses_display.h"
 #include "system.h"
 #include <thread>
-#include <ThreadPool.h>
 
 using std::string;
 using std::to_string;
 
+// Function to process data in separate threds
 void CpuUtilizationThread(System& system) {
-  // This loop will run in a separate thread
   for (unsigned long long i = 0; i < system.Cpu().size(); i++) {
     system.Cpu()[i].Utilization(system.GetPrevCpuVectorRawPtr());
   }
 }
+// Function to process data in separate threds
 void ProcessCpuUtilizationThread(System& system) {
-  // This loop will run in a separate thread
   for (size_t i = 0; i < system.Processes().size(); i++) {
     system.Processes()[i].CpuUtilization(system.GetPrevProcessVectorRawPrt());
   }
@@ -61,7 +60,7 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
   mvwprintw(window, ++row, 2, "Memory: ");
   wattron(window, COLOR_PAIR(1));
   mvwprintw(window, row, 10, "");
-  wprintw(window, ProgressBar(system.GetMemoryRawPtr()->mem_percent_util()).c_str());
+  wprintw(window, ProgressBar(system.MemoryUtilization()).c_str());
   wattroff(window, COLOR_PAIR(1));
   mvwprintw(window, ++row, 2,
             ("Total Processes: " + to_string(system.TotalProcesses())).c_str());
@@ -116,19 +115,20 @@ void NCursesDisplay::Display(System& system, int n) {
   WINDOW* process_window =
       newwin(3 + n, x_max - 1, getmaxy(system_window) + 1, 0);
 
-  std::vector<std::thread> threads;
-  //ThreadPool pool(std::thread::hardware_concurrency());
+  std::vector<std::thread> threads; // creates a vector for the threads
   while (1) {
     init_pair(1, COLOR_BLUE, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     box(system_window, 0, 0);
     box(process_window, 0, 0);
 
+    //Iniciates threads for the collection of data
     threads.emplace_back([&]() { LinuxParser::ProcStatParsin(&system); });
     threads.emplace_back([&]() { LinuxParser::UpTime(&system); });
     threads.emplace_back([&]() { LinuxParser::Pids(&system); });
     threads.emplace_back([&]() { LinuxParser::MemoryParse(&system); });
 
+    //Join those threads
     for (auto& thread : threads) {
       if (thread.joinable()) {
         thread.join();
@@ -146,15 +146,15 @@ void NCursesDisplay::Display(System& system, int n) {
     if (processThread.joinable()) {
       processThread.join();
     }
+    //Calculate system memory utilization
+    system.GetMemory()->MemoryUtilization();
 
-    system.GetMemoryRawPtr()->MemoryUtilization();
-
-    DisplaySystem(system, system_window);
-    DisplayProcesses(system.Processes(), process_window, n);
+    DisplaySystem(system, system_window); //Display information of the system
+    DisplayProcesses(system.Processes(), process_window, n);//Display information of the processes
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
-    threads.clear();
+    threads.clear(); //clear the threads vector for next interation
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
   endwin();

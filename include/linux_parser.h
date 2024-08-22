@@ -4,14 +4,12 @@
 #include <processor.h>
 #include <process.h>
 #include <system.h>
-#include <regex>
 #include <string>
 #include <experimental/filesystem>
 #include <boost/filesystem.hpp>
-#include <processor.h>
-#include <process.h>
-#include <ThreadPool.h>
+
 namespace LinuxParser {
+
 // Paths
 const std::string kProcDirectory{"/proc/"};
 const std::string kCmdlineFilename{"/cmdline"};
@@ -29,8 +27,8 @@ void ProcStatParsin(System* system); // Collect system and cpu data from proc/st
 void MemoryParse(System* system); //Collect memory data
 void UpTime(System* system); //Collect system uptime
 void Pids(System* system); // Function to create the vector processes
-void OperatingSystem(std::string* os); //Collect the OS name
-void Kernel(std::string* kernel); //Collect kernel version
+void OperatingSystem(System* system); //Collect the OS name
+void Kernel(System* system); //Collect kernel version
 
 // CPU
 enum CPUStates {
@@ -54,9 +52,6 @@ std::string Command(int pid); //Collect command line for a specific Pid
 std::string Ram(const std::string& spid); //Collect ram data for a specific Pid
 std::string Uid(const std::string& spid); //Collect User id for a specific Pid
 std::string User(const std::string& uid); //Collect User name for a specific Pid
-
-void ProcessCpuVector(ThreadPool& pool, System* system);
-void ProcessProcessVector(ThreadPool& pool, System* system);
 
 };  // namespace LinuxParser
 
