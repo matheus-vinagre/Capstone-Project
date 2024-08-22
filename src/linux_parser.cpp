@@ -1,6 +1,5 @@
 #include "linux_parser.h"
 #include <dirent.h>
-#include <unistd.h>
 #include <fstream>
 #include <experimental/filesystem>
 #include <boost/filesystem.hpp>
@@ -13,7 +12,6 @@
 #include <processor.h>
 #include <process.h>
 #include <memory.h>
-#include <ThreadPool.h>
 using std::stof;
 using std::string;
 using std::to_string;
@@ -45,21 +43,21 @@ void LinuxParser::ProcStatParsin(System* system) {
       std::istringstream linestream(line);
       linestream.ignore(256, ' ');
       linestream >> s_totalProcesses;
-      *system->GetTotalProcessRawPtr() = std::stoi(s_totalProcesses);
+      system->SetTotalProcesses(std::stoi(s_totalProcesses));
     }
     if (line.substr(0, 13) == "procs_running") {
       std::istringstream linestream(line);
       linestream.ignore(256, ' ');
       linestream >> s_runningProcess;
-      *system->GetRunningProcessRawPtr() = std::stoi(s_runningProcess);
+      system->SetRunningProcess(std::stoi(s_runningProcess));
     }
   }
-  *system->GetCpuNRawPtr() = cpuCount;
+  system->SetCpuNumber(cpuCount);
   system->GetCpuVectorRawPtr()->swap(cpu_temp);
 }
 
 //Collect the OS name
-void LinuxParser::OperatingSystem(std::string* os) {
+void LinuxParser::OperatingSystem(System* system) {
   string os_temp;
   std::ifstream filestream(kOSPath);
   if (filestream.is_open()) {
@@ -73,7 +71,7 @@ void LinuxParser::OperatingSystem(std::string* os) {
       while (linestream >> key >> os_temp) {
         if (key == "PRETTY_NAME") {
           std::replace(os_temp.begin(), os_temp.end(), '_', ' ');
-          *os = os_temp;
+          system->SetOs(os_temp);
         }
       }
     }
@@ -81,7 +79,7 @@ void LinuxParser::OperatingSystem(std::string* os) {
 }
 
 //Collect kernel version
-void LinuxParser::Kernel(std::string* kernel) {
+void LinuxParser::Kernel(System* system) {
   string kernel_temp;
   std::ifstream stream(kProcDirectory + kVersionFilename);
   if (stream.is_open()) {
@@ -92,7 +90,7 @@ void LinuxParser::Kernel(std::string* kernel) {
     std::istringstream linestream(line);
     linestream >> os >> version >> kernel_temp;
   }
-  *kernel = kernel_temp;
+  system->SetKernel(kernel_temp);
 }
 
 //auxiliary function to verify if its only numbers in a string
@@ -178,6 +176,7 @@ string LinuxParser::Command(int pid) {
       }
     } else {
      // std::cerr << "Error: Could not read the command line for PID " << spid << std::endl;
+      // Its commented because some PIDs needs special permission, dosen't chage the program outcome
     }
   } else {
     std::cerr << "Error: Could not open file for PID " << spid << std::endl;
@@ -255,7 +254,7 @@ void LinuxParser::UpTime(System* system) {
     linestream >> s_upTime >> s_idleTime;
     upTime_temp = std::stol(s_upTime);
   }
-  *system->GetUptimeRawPtr() = upTime_temp;
+  system->SetUptime(upTime_temp);
 }
 
 //Collect system uptime
@@ -323,33 +322,5 @@ void LinuxParser::MemoryParse(System* system) {
       }
     }
   }
-  *system->GetMemoryRawPtr() = memory_temp;
+  system->SetMemory(memory_temp);
 }
-/*
-// Function to process a single CPU element
-void ProcessCpuElement(Processor& cpu, System* system) {
-  cpu.Utilization(system);
-}
-
-// Function to process a single process element
-void ProcessProcessElement(Process& process, System* system) {
-  process.CpuUtilization(system);
-}
-
-// Function to process CPU vector using a thread pool
-void LinuxParser::ProcessCpuVector(ThreadPool& pool, System* system) {
-  for (auto& cpu : system.Cpu()) {
-    pool.enqueue([&cpu, &system]() {
-        ProcessCpuElement(cpu, system);
-    });
-  }
-}
-
-// Function to process process vector using a thread pool
-void LinuxParser::ProcessProcessVector(ThreadPool& pool, System* system) {
-  for (auto& process : system->Processes()) {
-    pool.enqueue([&process, &system]() {
-        ProcessProcessElement(process, system);
-    });
-  }
-*/

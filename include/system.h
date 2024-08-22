@@ -11,26 +11,31 @@
 
 class System {
     public:
+        //Setters
+        void SetRunningProcess(int runningProcess) const;
+        void SetTotalProcesses(int totalProcesses) const;
+        void SetOs(const std::string &os) const;
+        void SetKernel(const std::string &kernel) const;
+        void SetCpuNumber(int cpuNumber) const;
+        void SetUptime(long uptime) const;
+        void SetMemory(const Memory &memory) const;
+
+        //Getters
         std::vector<Processor>& Cpu();
         std::vector<Process>& Processes();
-        float MemoryUtilization();
-        long UpTime();
-        int TotalProcesses();
-        int RunningProcesses();
         std::string Kernel();
         std::string OperatingSystem();
+        int TotalProcesses();
+        int RunningProcesses();
+        float MemoryUtilization();
+        long UpTime();
 
-        int* GetRunningProcessRawPtr();
-        int* GetTotalProcessRawPtr();
-        int* GetCpuNRawPtr();
-        long* GetUptimeRawPtr();
-        std::string* GetOsRawPtr();
-        std::string* GetKernelRawPtr();
-        Memory* GetMemoryRawPtr();
-        std::vector<Processor>* GetCpuVectorRawPtr();
-        std::vector<Process>* GetProcessVectorRawPrt();
-        std::vector<PrevProcessor>* GetPrevCpuVectorRawPtr();
-        std::vector<PrevProcess>* GetPrevProcessVectorRawPrt();
+        //RawPointer getters
+        Memory* GetMemory() const;
+        std::vector<Processor>* GetCpuVectorRawPtr() const;
+        std::vector<Process>* GetProcessVectorRawPrt() const;
+        std::vector<PrevProcessor>* GetPrevCpuVectorRawPtr() const;
+        std::vector<PrevProcess>* GetPrevProcessVectorRawPrt() const;
 
         void UpdateSystemMutex();
     private:
@@ -38,10 +43,11 @@ class System {
 
         std::unique_ptr<std::vector<Processor>> _cpu = std::make_unique<std::vector<Processor>>();
         std::unique_ptr<std::vector<PrevProcessor>> _prevCpu = std::make_unique<std::vector<PrevProcessor>>();
+
         std::unique_ptr<std::vector<Process>> _processes = std::make_unique<std::vector<Process>>();
         std::unique_ptr<std::vector<PrevProcess>> _prevProcesses = std::make_unique<std::vector<PrevProcess>>();
-        std::unique_ptr<Memory> _memory = std::make_unique<Memory>();
 
+        std::unique_ptr<Memory> _memory = std::make_unique<Memory>();
         std::unique_ptr<std::string> _os = std::make_unique<std::string>();
         std::unique_ptr<std::string> _kernel = std::make_unique<std::string>();
         std::unique_ptr<int> _runningProcess = std::make_unique<int>();

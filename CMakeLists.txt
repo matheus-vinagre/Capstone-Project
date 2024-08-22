@@ -31,8 +31,7 @@ file(GLOB SOURCES "src/*.cpp")
 add_executable(monitor ${SOURCES}
         include/memory.h
         src/memory.cpp
-        src/ThreadPool.cpp
-        include/ThreadPool.h)
+)
 
 # Link libraries explicitly
 target_link_libraries(monitor ${CURSES_LIBRARIES} ${BOOST_FILESYSTEM_LIB} ${BOOST_SYSTEM_LIB})

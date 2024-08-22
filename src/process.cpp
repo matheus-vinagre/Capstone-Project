@@ -51,7 +51,7 @@ double calculateCpu(const long& delta_totaltime, const long& delta_uptime) {
   return cpuPercent;
 }
 vector<long> Prev(int pid, long totaltime, long uptime, std::vector<PrevProcess>* prevProcesses) {
-  // if theres no process saved inside the vector of Previus processes, it adds the first
+  // if theres no process saved inside the vector of previous processes, it adds the first
   if(prevProcesses->empty()) {
     PrevProcess prevProc(pid);
     prevProc.set_totaltime(totaltime);
